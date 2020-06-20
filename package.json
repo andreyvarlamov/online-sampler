@@ -1,0 +1,17 @@
+{
+  "name": "online-sampler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "online-sampler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "open": "^7.0.4",
+    "uuid": "^8.1.0"
+  }
+}
