@@ -113,13 +113,10 @@ function brgb(r, g, b) {
 }
 
 function setloading(status) {
-  if (!status) {
+  if (status) {
     loading = true;
-    // rotateTask.interval = frame_interval;
-    // rotateTask.repeat();
   } else {
     loading = false;
-    // rotateTask.cancel();
   }
 }
 
@@ -127,38 +124,13 @@ function getvalueof() {
   return val;
 }
 
-// function onclick(x, y, but, cmd, shift, capslock, option, ctrl) {
-//   // cache mouse position for tracking delta movements
-//   last_x = x;
-//   last_y = y;
-// }
-// onclick.local = 1; //private. could be left public to permit "synthetic" events
-
-// function ondrag(x, y, but, cmd, shift, capslock, option, ctrl) {
-//   var f, dy;
-
-//   // calculate delta movements
-//   dy = y - last_y;
-//   if (shift) {
-//     // fine tune if shift key is down
-//     f = val - dy * 0.001;
-//   } else {
-//     f = val - dy * 0.01;
-//   }
-//   msg_float(f); //set new value with clipping + refresh
-//   // cache mouse position for tracking delta movements
-//   last_x = x;
-//   last_y = y;
-// }
-// ondrag.local = 1; //private. could be left public to permit "synthetic" events
-
-// function forcesize(w, h) {
-//   if (w != h) {
-//     h = w;
-//     box.size(w, h);
-//   }
-// }
-// forcesize.local = 1; //private
+function forcesize(w, h) {
+  if (w != h) {
+    h = w;
+    box.size(w, h);
+  }
+}
+forcesize.local = 1; //private
 
 function onresize(w, h) {
   forcesize(w, h);

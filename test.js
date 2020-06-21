@@ -23,12 +23,12 @@ const authorization = onlineSampler.readTokenFromOS();
 //   };
 
 // const tempId = "186942";
-// onlineSampler.findASound(tempId, authHeader);
+// onlineSampler.getSound(tempId, authHeader);
 
 // onlineSampler.querySounds("kick", authHeader).then(results => {
 //   console.log(results);
 //   results.forEach(element => {
-//     onlineSampler.findASound(element.id, authHeader);
+//     onlineSampler.getSound(element.id, authHeader);
 //   });
 // });
 // }

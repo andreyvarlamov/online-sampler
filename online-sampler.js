@@ -5,15 +5,10 @@ const path = require("path");
 const { v4: uuid } = require("uuid");
 const open = require("open");
 
+// Check if it's running in max
 const MAX_ENV = process.env.hasOwnProperty("MAX_ENV");
-
 var Max = null;
-
 if (MAX_ENV) Max = require("max-api");
-
-if (MAX_ENV) Max.post("online sampler ok");
-
-if (MAX_ENV) Max.post(process.version);
 
 const freesoundSoundsURI = "https://freesound.org/apiv2/sounds/";
 const freesoundAuthURI = "https://freesound.org/apiv2/oauth2/authorize";
@@ -22,14 +17,20 @@ const freesoundSearchURI = "https://freesound.org/apiv2/search/text/?query=";
 const tokenFilename = "Onsam_access_token.json";
 const tempFolder = path.join(os.tmpdir(), "com.av.onsam");
 
+let currentQuery = "";
+
 if (!fs.existsSync(tempFolder)) {
   fs.mkdirSync(tempFolder);
 }
 
-// authorize
+// ---------------------------------------------------Authorization ---------------------------------------------------
 /* 1) register at freesound.org
  * 2) request api access
- * 3) copy in your clientID
+ * 3) copy in your client id and your client secret
+ * 4) go to freeseound auth api and copy in your authorization code
+ * 5) POST request freesound token api and get back the access code
+ * 7) TODO Can use refresh_token to refresh
+ * 8) When making requests add a header: Authorization: "Bearer " + token
  */
 async function authorize(clientId) {
   const requestURI =
@@ -68,6 +69,7 @@ function readTokenFromOS() {
   return JSON.parse(result);
 }
 
+// --------------------------------------------------- Queries ---------------------------------------------------
 async function downloadFile(fileUrl, authHeader, sound = null) {
   const filename = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
   let outputPath = "";
@@ -107,8 +109,23 @@ async function downloadFile(fileUrl, authHeader, sound = null) {
     .catch(err => console.log(err));
 }
 
-// Find a sound
-const findASound = (id, authHeader, index) => {
+async function querySounds(query, authHeader, page = 1) {
+  const config = {
+    ...authHeader,
+  };
+
+  return axios({
+    method: "get",
+    url: freesoundSearchURI + query + "&page=" + page,
+    ...config,
+  }).then(res => {
+    return new Promise((resolve, reject) => {
+      resolve(res.data.results);
+    });
+  });
+}
+
+const getSound = (id, authHeader, index) => {
   const sound = {
     name: "",
     length: "",
@@ -143,23 +160,7 @@ const findASound = (id, authHeader, index) => {
     .catch(err => console.log(err));
 };
 
-// Query Sounds
-async function querySounds(query, authHeader) {
-  const config = {
-    ...authHeader,
-  };
-
-  return axios({
-    method: "get",
-    url: freesoundSearchURI + query,
-    ...config,
-  }).then(res => {
-    return new Promise((resolve, reject) => {
-      resolve(res.data.results);
-    });
-  });
-}
-
+// --------------------------------------------------- MAX Handlers etc. ---------------------------------------------------
 if (MAX_ENV) {
   const authorization = readTokenFromOS();
 
@@ -172,12 +173,25 @@ if (MAX_ENV) {
 
     Max.addHandlers({
       query: queryText => {
-        Max.outlet("query-done", 0);
+        if (currentQuery !== queryText) {
+          currentQuery = queryText;
+          Max.outlet("new-query", 1);
+        }
+        Max.outlet("qloading", 1);
         querySounds(queryText, authHeader).then(results => {
           results.forEach((element, index) => {
-            findASound(element.id, authHeader, index + 1);
+            getSound(element.id, authHeader, index + 1);
           });
-          Max.outlet("query-done", 1);
+          Max.outlet("qloading", 0);
+        });
+      },
+      page: pageNum => {
+        Max.outlet("qloading", 1);
+        querySounds(currentQuery, authHeader, pageNum).then(results => {
+          results.forEach((element, index) => {
+            getSound(element.id, authHeader, index + 1);
+          });
+          Max.outlet("qloading", 0);
         });
       },
     });
@@ -186,7 +200,7 @@ if (MAX_ENV) {
 
 module.exports = {
   authorize,
-  findASound,
+  getSound,
   getToken,
   readTokenFromOS,
   querySounds,
