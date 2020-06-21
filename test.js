@@ -1,36 +1,34 @@
+require("dotenv").config();
+
 const onlineSampler = require("./online-sampler");
 
-console.log(process.env);
+// console.log(process.env);
 
-// const tempClientId = "NLzNgGu1qyTCiMrPF9HK";
-// const tempClientSecret = "UADd9Szp5gHVPjWBjVDLpbuIcyt7qoElsvkr00FQ";
+const tempClientId = process.env.TEMP_CLIENT_ID;
+const tempClientSecret = process.env.TEMP_CLIENT_SECRET;
 
 // onlineSampler.authorize(tempClientId);
 
-// const tempCode = "URXHkDMZtvYBeSzVf1HlLmPEMFz0xM";
+const tempCode = process.env.TEMP_CODE;
 
 // onlineSampler.getToken(tempClientId, tempClientSecret, tempCode);
 
 const authorization = onlineSampler.readTokenFromOS();
 
-if (authorization) {
-  const authHeader = {
-    headers: {
-      Authorization: "Bearer " + authorization.access_token, //the token is a variable which holds the token
-    },
-  };
+// if (authorization) {
+//   const authHeader = {
+//     headers: {
+//       Authorization: "Bearer " + authorization.access_token,
+//     },
+//   };
 
-  // const tempId = "186942";
-  // onlineSampler.findASound(tempId, authHeader);
+// const tempId = "186942";
+// onlineSampler.findASound(tempId, authHeader);
 
-  onlineSampler.querySounds("kick", authHeader).then(results => {
-    console.log(results);
-    results.forEach(element => {
-      onlineSampler.findASound(element.id, authHeader);
-    });
-  });
-}
-
-// https://freesound.org/apiv2/oauth2/access_token/
-// ?client_id=NLzNgGu1qyTCiMrPF9HK&client_secret=UADd9Szp5gHVPjWBjVDLpbuIcyt7qoElsvkr00FQ
-// &grant_type=authorization_code&code=DWjSL3wZvvosxkP68RiVDQcU7R058R
+// onlineSampler.querySounds("kick", authHeader).then(results => {
+//   console.log(results);
+//   results.forEach(element => {
+//     onlineSampler.findASound(element.id, authHeader);
+//   });
+// });
+// }

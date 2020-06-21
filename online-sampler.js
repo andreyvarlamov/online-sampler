@@ -32,14 +32,12 @@ if (!fs.existsSync(tempFolder)) {
  * 3) copy in your clientID
  */
 async function authorize(clientId) {
-  // ?client_id=NLzNgGu1qyTCiMrPF9HK&response_type=code&state=xyz
   const requestURI =
     freesoundAuthURI +
     "?client_id=" +
     clientId +
     "&response_type=code&state=xyz";
   await open(requestURI);
-  // https://freesound.org/apiv2/oauth2/access_token/?client_id=NLzNgGu1qyTCiMrPF9HK&client_secret=UADd9Szp5gHVPjWBjVDLpbuIcyt7qoElsvkr00FQ&grant_type=authorization_code&code=9oFzzFwjInsGCTE0UxNzXxMGHEK0xL
 }
 
 function getToken(clientId, clientSecret, code) {
@@ -52,9 +50,6 @@ function getToken(clientId, clientSecret, code) {
     "&grant_type=authorization_code&code=" +
     code;
 
-  // https://freesound.org/apiv2/oauth2/access_token/
-  // ?client_id=NLzNgGu1qyTCiMrPF9HK&client_secret=UADd9Szp5gHVPjWBjVDLpbuIcyt7qoElsvkr00FQ
-  // &grant_type=authorization_code&code=DWjSL3wZvvosxkP68RiVDQcU7R058R
   axios
     .post(requestURI)
     .then(res => {
@@ -125,7 +120,6 @@ const findASound = (id, authHeader, index) => {
   axios
     .get(freesoundSoundsURI + id, authHeader)
     .then(res => {
-      // console.log(res.data)
       sound.name = res.data.name;
       sound.downloadLink = res.data.download;
       sound.previewLink = res.data.previews["preview-lq-mp3"];
@@ -133,7 +127,6 @@ const findASound = (id, authHeader, index) => {
       sound.length = Math.round(res.data.duration * 1000);
 
       Max.outlet("name", index, sound.name);
-      // console.log(sound);
       downloadFile(sound.waveformImgLink, authHeader)
         .then(file => {
           console.log(file);
@@ -146,12 +139,6 @@ const findASound = (id, authHeader, index) => {
           if (MAX_ENV) Max.outlet("preview", index, file, sound.length);
         })
         .catch(err => console.log(err));
-      // downloadFile(sound.downloadLink, authHeader, uuid() + ".wav")
-      //   .then(file => {
-      //     console.log(file);
-      //     if (MAX_ENV) Max.outlet("sample", file);
-      //   })
-      //   .catch(err => console.log(err));
     })
     .catch(err => console.log(err));
 };
@@ -179,12 +166,9 @@ if (MAX_ENV) {
   if (authorization) {
     const authHeader = {
       headers: {
-        Authorization: "Bearer " + authorization.access_token, //the token is a variable which holds the token
+        Authorization: "Bearer " + authorization.access_token,
       },
     };
-
-    // const tempId = "186942";
-    // onlineSampler.findASound(tempId, authHeader);
 
     Max.addHandlers({
       query: queryText => {
@@ -207,23 +191,3 @@ module.exports = {
   readTokenFromOS,
   querySounds,
 };
-
-// Client id NLzNgGu1qyTCiMrPF9HK
-// https://freesound.org/apiv2/oauth2/authorize/?client_id=NLzNgGu1qyTCiMrPF9HK&response_type=code&state=xyz
-// Auth code 9oFzzFwjInsGCTE0UxNzXxMGHEK0xL
-// POST Auth code to https://freesound.org/apiv2/oauth2/access_token/client_id=NLzNgGu1qyTCiMrPF9HK&client_secret=UADd9Szp5gHVPjWBjVDLpbuIcyt7qoElsvkr00FQ&grant_type=authorization_code&code=9oFzzFwjInsGCTE0UxNzXxMGHEK0xL
-/* client_id	Client id of your API credential (not the client secret!)
-client_secret	The client secret ;)
-grant_type	Must be ‘authorization_code’
-code	The authorization code you got in step 2 (see above) */
-/* {
-    "access_token": "OWq5NdmRvr6P9oyqOd3DKrgt9DDp5C",
-    "token_type": "Bearer",
-    "expires_in": 86400,
-    "refresh_token": "G46zGOyILP8KvzaQOLUlbgfFK2KlWf",
-    "scope": "read write"
-} */
-
-// curl -X POST -d "client_id=YOUR_CLIENT_ID&client_secret=YOUR_CLIENT_SECRET&grant_type=refresh_token&refresh_token=REFRESH_TOKEN" "https://freesound.org/apiv2/oauth2/access_token/"
-
-// GET /apiv2/sounds/<sound_id>/
